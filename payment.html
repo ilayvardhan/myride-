@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mode Of Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        #payment-form {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(236, 29, 29, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        
+    </style>
+    <!-- Include Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+    <h1 style="text-align: center;">Mode Of Payment</h1>
+
+    <!-- Payment Form for Credit Card -->
+    <form id="payment-form">
+        <!-- Card details input -->
+        <label for="card-element">
+            Credit or debit card
+        </label>
+        <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+        </div>
+
+        <!-- Used to display form errors. -->
+        <div id="card-errors" role="alert"></div>
+        <input type="radio" name="payment-method" value="cod">
+        Cash 
+    </div>
+    <div>
+
+    <!-- MyRide Coins -->
+    <label>
+        <input type="radio" name="payment-method" value="myride-coins">
+        MyRide Coins
+    </label>
+
+    <!-- Paytm -->
+    <label>
+        <input type="radio" name="payment-method" value="paytm">
+        Paytm
+    </label>
+    <div id="paytm-fields" style="display: none;">
+        <label for="paytm-number">Paytm Mobile Number:</label>
+        <input type="tel" id="paytm-number" placeholder="Enter Paytm Mobile Number">
+                
+    </div>
+    <div id="paytm-fields" style="display: none;">
+        <label for="paytm-number">Paytm Mobile Number:</label>
+        <input type="tel" id="paytm-number" placeholder="Enter Paytm Mobile Number">
+    </div>  
+</div>
+        <!-- Submit button -->
+        <button type="submit" id="submit-button" disabled> Proceed to pay <param name="" value=""></button>
+    </form>
+
+    <!-- Payment Options for Other Methods -->
+    <div id="payment-options">
+        <h2 style="text-align: center;">Select Payment Method:</h2>
+    <div class="Methods">
+        <!-- Cash 
+        <div>
+            <input type="radio" name="payment-method" value="cod">
+            Cash 
+        </div>
+
+        <!-- MyRide Coins -->
+        <label>
+            <input type="radio" name="payment-method" value="myride-coins">
+            MyRide Coins
+        </label>
+
+        <!-- Paytm -->
+        <label>
+            <input type="radio" name="payment-method" value="paytm">
+            Paytm
+        </label>
+        <div id="paytm-fields" style="display: none;">
+            <label for="paytm-number">Paytm Mobile Number:</label>
+            <input type="tel" id="paytm-number" placeholder="Enter Paytm Mobile Number">
+        </div>
+    </div>
+
+        <!-- Additional fields for Paytm -->
+       
+    </div>
+
+    <script>
+        var stripe = Stripe('your-publishable-key');
+        var elements = stripe.elements();
+
+        
+        var card = elements.create('card');
+
+        
+        card.mount('#card-element');
+
+        
+        card.addEventListener('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            var submitButton = document.getElementById('submit-button');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+                submitButton.disabled = true;
+            } else {
+                displayError.textContent = '';
+                submitButton.disabled = false;
+            }
+        });
+
+        
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            
+            document.querySelector('button').disabled = true;
+
+           
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                   
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                   
+                    stripeTokenHandler(result.token);
+                }
+            });
+        });
+
+        
+        function stripeTokenHandler(token) {
+            
+            console.log(token);
+            
+        }
+
+        
+        const paymentOptions = document.getElementById('payment-options');
+        const paytmFields = document.getElementById('paytm-fields');
+        const submitButton = document.getElementById('submit-button');
+
+        paymentOptions.addEventListener('change', function(event) {
+            const selectedMethod = event.target.value;
+
+            
+            paytmFields.style.display = (selectedMethod === 'paytm') ? 'block' : 'none';
+
+            
+            submitButton.disabled = !selectedMethod;
+        });
+    </script>
+</body>
+</html>
